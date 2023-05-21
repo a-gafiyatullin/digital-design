@@ -343,6 +343,9 @@ module testbench();
   // at start of test, load vectors and pulse reset
   initial
     begin
+      $dumpfile("controller.vcd");
+      $dumpvars(0, dut);
+
       $readmemb("controller.tv", testvectors);
       vectornum = 0; errors = 0; hash = 0;
       reset = 1; #22; reset = 0;
