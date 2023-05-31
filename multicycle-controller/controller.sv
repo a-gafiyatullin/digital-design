@@ -54,10 +54,10 @@ module ALUDecoder(input  logic       op5,
       'b10: begin
               case (funct3)
                 'b000: begin
-                        if (op5 == 'b0 && funct7b5 == 'b0
-                            || op5 == 'b0 && funct7b5 == 'b1
-                            || op5 == 'b1 && funct7b5 == 'b0) ALUControl = 'b000;
-                        else ALUControl = 'b001;
+                        if ({op5, funct7b5} == 'b11)
+                          ALUControl = 'b001;
+                        else
+                          ALUControl = 'b000;
                        end
                 'b010: ALUControl   = 'b101;
                 'b110: ALUControl   = 'b011;
@@ -99,35 +99,23 @@ module MainFSM(input  logic       clk,
   logic [3:0] next_state;
 
   flipflop flop(clk, reset, next_state, state);
+
+  logic [13:0] signals;
+
+  assign {AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp,
+          ResultSrc, PCUpdate, RegWrite, MemWrite,
+          Branch} = signals;
   
   always_comb begin
     case (state)
       'b0000: begin
-                AdrSrc    = 0;
-                IRWrite   = 1;
-                ALUSrcA   = 'b00;
-                ALUSrcB   = 'b10;
-                ALUOp     = 'b00;
-                ResultSrc = 'b10;
-                PCUpdate  = 1;
-                RegWrite  = 0;
-                MemWrite  = 0;
-                Branch    = 0;
-
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b0_1_00_10_00_10_1_0_0_0;
                 next_state = 'b0001;
               end
       'b0001: begin
-                ALUSrcA = 'b01;
-                ALUSrcB = 'b01;
-                ALUOp   = 'b00;
-
-                AdrSrc    = 0;
-                IRWrite   = 0;
-                ResultSrc = 'b00;
-                PCUpdate  = 0;
-                RegWrite  = 0;
-                MemWrite  = 0;
-                Branch    = 0;
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b0_0_01_01_00_00_0_0_0_0;
 
                 case (op)
                   'b0000011: next_state = 'b0010;
@@ -140,17 +128,8 @@ module MainFSM(input  logic       clk,
                 endcase
               end
       'b0010: begin
-                ALUSrcA = 'b10;
-                ALUSrcB = 'b01;
-                ALUOp   = 'b00;
-
-                AdrSrc    = 0;
-                IRWrite   = 0;
-                ResultSrc = 'b00;
-                PCUpdate  = 0;
-                RegWrite  = 0;
-                MemWrite  = 0;
-                Branch    = 0;
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b0_0_10_01_00_00_0_0_0_0;
 
                 case (op)
                   'b0000011: next_state = 'b0011;
@@ -159,137 +138,48 @@ module MainFSM(input  logic       clk,
                 endcase
               end
       'b0011: begin
-                ResultSrc = 'b00;
-                AdrSrc    = 1;
-                
-                ALUSrcA = 'b00;
-                ALUSrcB = 'b00;
-                ALUOp   = 'b00;
-                IRWrite = 0;
-                PCUpdate = 0;
-                RegWrite = 0;
-                MemWrite = 0;
-                Branch   = 0;
-
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b1_0_00_00_00_00_0_0_0_0;
                 next_state = 'b0100;
               end
       'b0100: begin
-                ResultSrc = 'b01;
-                RegWrite  = 1;
-                
-                AdrSrc    = 0;
-                ALUSrcA = 'b00;
-                ALUSrcB = 'b00;
-                ALUOp   = 'b00;
-                IRWrite   = 0;
-                PCUpdate  = 0;
-                MemWrite  = 0;
-                Branch  = 0;
-
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b0_0_00_00_00_01_0_1_0_0;
                 next_state = 'b0000;
               end
       'b0101: begin
-                ResultSrc = 'b00;
-                AdrSrc    = 1;
-                MemWrite  = 1;
-                
-                RegWrite  = 0;
-                ALUSrcA = 'b00;
-                ALUSrcB = 'b00;
-                ALUOp   = 'b00;
-                IRWrite   = 0;
-                PCUpdate  = 0;
-                Branch  = 0;
-
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b1_0_00_00_00_00_0_0_1_0;
                 next_state = 'b0000;
               end
       'b0110: begin
-                ALUSrcA = 'b10;
-                ALUSrcB = 'b00;
-                ALUOp   = 'b10;
-
-                ResultSrc = 'b00;
-                AdrSrc    = 0;
-                MemWrite  = 0;
-                RegWrite  = 0;
-                IRWrite   = 0;
-                PCUpdate  = 0;
-                Branch  = 0;
-
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b0_0_10_00_10_00_0_0_0_0;
                 next_state = 'b0111;
               end
       'b0111: begin
-                ResultSrc = 'b00;
-                RegWrite  = 1;
-
-                ALUSrcA = 'b00;
-                ALUSrcB = 'b00;
-                ALUOp   = 'b00;
-                AdrSrc    = 0;
-                MemWrite  = 0;
-                IRWrite   = 0;
-                PCUpdate  = 0;
-                Branch  = 0;
-
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b0_0_00_00_00_00_0_1_0_0;
                 next_state = 'b0000;
               end
       'b1000: begin
-                ALUSrcA = 'b10;
-                ALUSrcB = 'b01;
-                ALUOp   = 'b10;
-
-                ResultSrc = 'b00;
-                AdrSrc    = 0;
-                MemWrite  = 0;
-                RegWrite  = 0;
-                IRWrite   = 0;
-                PCUpdate  = 0;
-                Branch  = 0;
-
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b0_0_10_01_10_00_0_0_0_0;
                 next_state = 'b0111;
               end
       'b1001: begin
-                ALUSrcA = 'b01;
-                ALUSrcB = 'b10;
-                ALUOp   = 'b00;
-                ResultSrc = 'b00;
-                PCUpdate  = 1;
-                
-                AdrSrc    = 0;
-                MemWrite  = 0;
-                RegWrite  = 0;
-                IRWrite   = 0;
-                Branch  = 0;
-
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b0_0_01_10_00_00_1_0_0_0;
                 next_state = 'b0111;
               end
       'b1010: begin
-                ALUSrcA = 'b10;
-                ALUSrcB = 'b00;
-                ALUOp   = 'b01;
-                ResultSrc = 'b00;
-                Branch  = 1;
-                
-                PCUpdate  = 0;
-                AdrSrc    = 0;
-                MemWrite  = 0;
-                RegWrite  = 0;
-                IRWrite   = 0;
-
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b0_0_10_00_01_00_0_0_0_1;
                 next_state = 'b0000;
               end
       default: begin
-                AdrSrc     = 0;
-                IRWrite   = 0;
-                ALUSrcA   = 'b00;
-                ALUSrcB   = 'b00;
-                ALUOp     = 'b00;
-                ResultSrc = 'b00;
-                PCUpdate  = 0;
-                RegWrite  = 0;
-                MemWrite  = 0;
-                Branch    = 0;
-
+                // AdrSrc, IRWrite, ALUSrcA, ALUSrcB, ALUOp, ResultSrc, PCUpdate, RegWrite, MemWrite, Branch
+                signals = 'b0_0_00_00_00_00_0_0_0_0;
                 next_state = 'b0000;
               end
     endcase
@@ -417,4 +307,3 @@ module testbench();
       end
     end
 endmodule
-
