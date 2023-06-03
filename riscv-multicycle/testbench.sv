@@ -43,11 +43,12 @@ module testbench();
   always @(negedge clk)
     begin
       if(MemWrite) begin
-        if(DataAdr === 100 & WriteData === 25) begin
+        if(DataAdr === 44 & WriteData === 8) begin     // tests/riscvtest-exam.txt
+        //if(DataAdr === 100 & WriteData === 25) begin // tests/riscvtest.txt
           $display("Simulation succeeded");
  	   	    $display("hash = %h", hash);
           $stop;
-        end else if (DataAdr !== 96) begin
+        end else begin
           $display("Simulation failed");
           $stop;
         end

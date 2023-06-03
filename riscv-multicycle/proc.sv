@@ -16,7 +16,8 @@ module mem
   logic [31:0] RAM[N - 1:0];
   
   initial
-      $readmemh("tests/riscvtest.txt",RAM);
+      $readmemh("tests/riscvtest-exam.txt",RAM);
+      //$readmemh("tests/riscvtest.txt",RAM);
 
   assign rd = RAM[a[31:2]]; // word aligned
 

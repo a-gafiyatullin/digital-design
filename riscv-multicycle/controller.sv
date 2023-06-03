@@ -38,7 +38,7 @@ module controller(input  logic       clk,
   InstrDecoder instrdecoder(op, ImmSrc);
 
   always_comb begin
-    PCWrite = PCUpdate || (Branch && Zero);
+    PCWrite = PCUpdate || (Branch && (Zero && funct3 == 'b000 || !Zero && funct3 == 'b001));
   end
 endmodule
 
